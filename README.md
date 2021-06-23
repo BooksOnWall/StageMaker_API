@@ -1,4 +1,4 @@
-## Manage api server
+## StageMaker api server
 
 ### Requirement
 
