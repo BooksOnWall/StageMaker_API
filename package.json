@@ -1,0 +1,30 @@
+{
+  "name": "manage_api",
+  "version": "1.0.0",
+  "description": "Nodejs express JSON restfull API used by StageMaker",
+  "main": "server.js",
+  "repository": "https://git.pulsar113.org/AGC/Manage_api.git",
+  "author": "Tom Bouillut <tom@booksonwall.art>",
+  "license": "AGPL",
+  "private": true,
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "child_process": "^1.0.2",
+    "connect-timeout": "^1.9.0",
+    "core-util-is": "^1.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "fs": "^0.0.1-security",
+    "jsonwebtoken": "^8.5.1",
+    "mariadb": "^2.5.3",
+    "multer": "^1.4.2",
+    "mysql2": "^2.2.5",
+    "passport": "^0.4.1",
+    "passport-jwt": "^4.0.0",
+    "pretty-bytes": "^5.5.0",
+    "rimraf": "^3.0.2",
+    "sequelize": "^6.5.0",
+    "util": "^0.12.3"
+  }
+}

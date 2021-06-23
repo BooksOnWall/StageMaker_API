@@ -1,0 +1,10 @@
+fullchain.pem
+privkey.pem
+node_modules
+.env
+conf/db/users.json
+conf/db/mysql.js
+conf/hosts/hosts.js
+hosts
+tmp/*
+
