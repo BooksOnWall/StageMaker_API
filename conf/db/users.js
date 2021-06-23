@@ -14,6 +14,10 @@ module.exports.users = {
     type: Sequelize.STRING,
     allowNull: false,
   },
+  groups: {
+    type: Sequelize.JSON,
+    allowNull: false,
+  },
   active: {
     type: Sequelize.BOOLEAN,
     allowNull: false,
