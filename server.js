@@ -16,7 +16,7 @@ const port = process.env.SERVER_PORT;
 //proxy port  usefull if you use an web proxy to run your server on one port and make it accessible on another , set correct src path url on upload/download files
 const proxy = process.env.PROXY_PORT;
 const serverUrl = protocol + '://'+ host + ':' + proxy +'/';
-
+let config = require('./conf/db');
 var crypto = require('crypto');
 var privatekey = process.env.CRYPTO_KEY;
 const salt = (privatekey) ? privatekey : crypto.randomBytes(16).toString('hex');
@@ -81,9 +81,9 @@ app.use(passport.initialize());
 // cors integration
 var allowedOrigins = [
       '*',
-      'https://localhost:8000',
+      'https://localhost:3000',
       'https://stagemaker.booksonwall.art',
-      'http://localhost:8000'
+      'http://localhost:3000'
 ];
 
 app.use(cors({

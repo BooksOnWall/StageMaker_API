@@ -2,6 +2,6 @@ fullchain.pem
 privkey.pem
 node_modules
 .env
-conf/db/mysql.js
+conf/db.js
 tmp/*
 

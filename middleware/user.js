@@ -58,12 +58,6 @@ const getUser =  ({email}) => {
 
 module.exports = function() {
   // middleware that is specific to this router
-  user.use(function timeLog(req, res, next) {
-    let referer =req.get('Referrer').split('/app/')[1];
-    let from = req.get('Referrer').split('/app/')[0];
-    console.log('connection: ',{From: from, Referer: referer, Time: Date.now(), Date: new Date(Date.now()).toLocaleString().split(',')[0]});
-    next();
-  });
   user.get('/', function(req, res) {
     res.send('hello world');
   });
