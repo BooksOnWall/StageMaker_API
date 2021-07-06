@@ -16,7 +16,7 @@ const port = process.env.SERVER_PORT;
 //proxy port  usefull if you use an web proxy to run your server on one port and make it accessible on another , set correct src path url on upload/download files
 const proxy = process.env.PROXY_PORT;
 const serverUrl = protocol + '://'+ host + ':' + proxy +'/';
-let config = require('./conf/db');
+
 var crypto = require('crypto');
 var privatekey = process.env.CRYPTO_KEY;
 const salt = (privatekey) ? privatekey : crypto.randomBytes(16).toString('hex');
@@ -116,13 +116,37 @@ var allowCrossDomain = function(req, res, next) {
   next();
 }
 app.use(allowCrossDomain);
+//
+// Define db andD create tables
+let dbConfig = require('./conf/db');
+console.log('dbConfig', dbConfig);
+const Sequelize = require('sequelize');
+// fix sequelize GeoFromText mac os x bug => https://github.com/sequelize/sequelize/issues/9786
+const wkx = require('wkx')
+Sequelize.GEOMETRY.prototype._stringify = function _stringify(value, options) {
+  return `ST_GeomFromText(${options.escape(wkx.Geometry.parseGeoJSON(value).toWkt())})`;
+};
+Sequelize.GEOMETRY.prototype._bindParam = function _bindParam(value, options) {
+  return `ST_GeomFromText(${options.bindParam(wkx.Geometry.parseGeoJSON(value).toWkt())})`;
+};
+Sequelize.GEOGRAPHY.prototype._stringify = function _stringify(value, options) {
+  return `ST_GeomFromText(${options.escape(wkx.Geometry.parseGeoJSON(value).toWkt())})`;
+};
+Sequelize.GEOGRAPHY.prototype._bindParam = function _bindParam(value, options) {
+  return `ST_GeomFromText(${options.bindParam(wkx.Geometry.parseGeoJSON(value).toWkt())})`;
+};
+// initialze an instance of Sequelize with mysql conf parameters
+const sequelize = new Sequelize(dbConfig);
+sequelize
+.authenticate()
+.then(() => console.log('Connection has been established successfully.'))
+.catch(err => console.error('Unable to connect to the database:', err));
 
 // use middleware
 var user = require('./middleware/user');
-
-
-app.use('/',user());
-app.use('/login',user());
+app.use('/',user({sequelize}));
+app.use('/login',user({sequelize}));
+app.use('/register',user({sequelize}));
 
 // start app
 const startMsg = 'Manage RESTFULL Server listening on port ' + port + '! Go to ' + protocol + '://' + host + ':' + port + '/';

@@ -1,11 +1,8 @@
 const Sequelize = require('sequelize');
-module.exports.users = {
+module.exports = {
   name: {
     type: Sequelize.STRING,
     allowNull: false,
     unique: true,
   },
-  permissions: {
-    type: Sequelize.JSON,
-  }
 };

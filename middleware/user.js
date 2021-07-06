@@ -39,25 +39,102 @@ function compare(hash, password) {
   return hash === originalHash;
 }
 
-const getUser =  ({email}) => {
-  try {
-    let users;
-    users = fs.readFileSync('./conf/db/users.json', 'utf8');
-
-    if (users === undefined) {
-    } else {
-      users = JSON.parse(users);
-      var user = users.find(o => o.email === email);
-      return user;
+// const getUser =  ({email}) => {
+//   try {
+//     let users;
+//     users = fs.readFileSync('./conf/db/users.json', 'utf8');
+//
+//     if (users === undefined) {
+//     } else {
+//       users = JSON.parse(users);
+//       var user = users.find(o => o.email === email);
+//       return user;
+//     }
+//   } catch(e) {
+//     console.log(e.message);
+//   }
+// };
+const createUser = async ({ name, email, hash, active }) => {
+  let password = hash;
+  try{
+    const res =  await Users.create({ name, email, password, active });
+    const uid = await res.get('id');
+    var dir = __dirname + '/public/users/'+uid;
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, 0o744);
     }
+    return res;
   } catch(e) {
     console.log(e.message);
   }
+}
+const patchUser = async ({ id, name, email, active }) => {
+  return await Users.update({ id, name, email, active },
+    { where: {id : id}}
+  );
+}
+const patchUserPasswd = async ({ id, hash }) => {
+  return await Users.update({ password: hash },{ where: {id : id}});
+}
+const getAllUsers = async () => {
+  return await Users.findAll();
 };
 
+const getUser = async obj => {
+  return await Users.findOne({
+    where: obj,
+  });
+};
+const deleteUser = async (uid) => {
+  let res= await Users.destroy({
+    where: {id : uid}
+  });
+  //remove user directory
+  rimraf.sync("./public/users/"+uid);
+  return res;
+};
 
-module.exports = function() {
+module.exports = ({sequelize}) => {
   // middleware that is specific to this router
+  // create user model
+  const users = require('../conf/db/users');
+  const groups = require('../conf/db/groups');
+  const permissions = require('../conf/db/permissions');
+  const Users = sequelize.define('users', users);
+  const Groups = sequelize.define('groups', groups);
+  const Permissions = sequelize.define('permissions', permissions);
+  Permissions.belongsTo(Groups, { foreignKey: 'gid', targetKey: 'id' });
+  Groups.hasMany(Permissions, { foreignKey: 'gid', sourceKey: 'id'});
+  // create table with user model
+  Users.sync()
+   .then(() => {
+     console.log('User table created successfully');
+     var dir_root = __dirname + '/public';
+     if (!fs.existsSync(dir_root)) {
+         fs.mkdirSync(dir_root, 0o744);
+         console.log('Public directory created successfully')
+     }
+
+     var dir = __dirname + '/public/users';
+     if (!fs.existsSync(dir)) {
+         fs.mkdirSync(dir, 0o744);
+         console.log('User directory created successfully')
+     }
+     Groups.sync()
+      .then(() => {
+        console.log('Groups table created successfully');
+        // create table with permissions model
+        Permissions.sync()
+         .then(() => {
+           console.log('Permissions table created successfully');
+         })
+         .catch(err => console.log('oooh,error creating database Permissions , did you enter wrong database credentials?', err));
+      })
+      .catch(err => console.log('oooh, error creating database Groups ,did you enter wrong database credentials?', err));
+   })
+   .catch(err => console.log('oooh, error creating database User or directory , did you enter wrong database credentials? is your user folder created server side ?'));
+
+
   user.get('/', function(req, res) {
     res.send('hello world');
   });
